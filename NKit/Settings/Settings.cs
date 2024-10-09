@@ -110,7 +110,9 @@ namespace Nanook.NKit
                 ExeName = System.IO.Path.GetFileNameWithoutExtension(exe); //get correct filename casing
                 try
                 {
-                    Configuration config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+                    string configPath = Environment.GetEnvironmentVariable("NKIT_CONFIG_PATH");
+                    ExeConfigurationFileMap map = new ExeConfigurationFileMap { ExeConfigFilename = configPath };
+                    Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
                     ConfigFileFound = config.HasFile;
                 }
                 catch { }
@@ -128,7 +130,9 @@ namespace Nanook.NKit
             {
                 if (_appSettings == null)
                 {
-                    Configuration config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+                    string configPath = Environment.GetEnvironmentVariable("NKIT_CONFIG_PATH");
+                    ExeConfigurationFileMap map = new ExeConfigurationFileMap { ExeConfigFilename = configPath };
+                    Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
                     ConfigFileFound = config.HasFile;
                     //string sectionName = System.IO.Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
                     string key = config?.Sections?.Keys?.Cast<string>().FirstOrDefault(a => string.Compare(a, "appSettings" /*ExeName*/, true) == 0);
@@ -141,7 +145,7 @@ namespace Nanook.NKit
             return pathFix(defValue)?.Replace(" % exe", _exePath);
         }
 
-        public Settings(DiscType type) : this(type, null, true)
+        public Settings(DiscType type) : this(type, ".", true)
         {
         }
 
@@ -152,18 +156,17 @@ namespace Nanook.NKit
             Configuration config;
             try
             {
-                config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+                string configPath = Environment.GetEnvironmentVariable("NKIT_CONFIG_PATH");
+                ExeConfigurationFileMap map = new ExeConfigurationFileMap { ExeConfigFilename = configPath };
+                config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+                Console.WriteLine($"Test1: {config}\n");
                 AppSettingsSection s = config == null ? null : (AppSettingsSection)config.GetSection("appSettings");
 
-                string path = overridePath ?? get(s, setting = "Path", true, @"%exe\Processed");
-                if (string.IsNullOrEmpty(path))
-                    Path = Environment.CurrentDirectory;
-                else
-                    Path = (new DirectoryInfo(path)).FullName;
+                Path = Environment.CurrentDirectory;
 
                 int ol;
                 if (!int.TryParse(get(s, setting = "OutputLevel", false, "2"), out ol))
-                    ol = 1;
+                    ol = 2;
                 OutputLevel = ol;
 
                 EnableSummaryLog = get(s, setting = "EnableSummaryLog", false, ConfigFileFound ? "true" : "false") == "true";
@@ -224,7 +227,9 @@ namespace Nanook.NKit
                 Configuration config;
                 try
                 {
-                    config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+                    string configPath = Environment.GetEnvironmentVariable("NKIT_CONFIG_PATH");
+                    ExeConfigurationFileMap map = new ExeConfigurationFileMap { ExeConfigFilename = configPath };
+                    config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
                     AppSettingsSection s = config == null ? null : (AppSettingsSection)config.GetSection("appSettings");
                 }
                 catch (Exception ex)
@@ -259,15 +264,15 @@ namespace Nanook.NKit
                 {
                     s = get(config, "gamecube");
 
-                    DatPathRedumpMask = get(s, setting = "DatPathRedumpMask", true, @"%exe\Dats\GameCube_Redump\*.dat");
-                    DatPathCustomMask = get(s, setting = "DatPathCustomMask", true, @"%exe\Dats\GameCube_Custom\*.dat");
+                    DatPathRedumpMask = get(s, setting = "DatPathRedumpMask", true, @"%pth\Dats\GameCube_Redump\*.dat");
+                    DatPathCustomMask = get(s, setting = "DatPathCustomMask", true, @"%pth\Dats\GameCube_Custom\*.dat");
 
-                    RecoveryFilesPath = get(s, setting = "RecoveryFilesPath", true, @"%exe\Recovery\GameCube");
-                    OtherRecoveryFilesPath = get(s, setting = "OtherRecoveryFilesPath", true, @"%exe\Recovery\GameCube_Other");
+                    RecoveryFilesPath = get(s, setting = "RecoveryFilesPath", true, @"%pth\Recovery\GameCube");
+                    OtherRecoveryFilesPath = get(s, setting = "OtherRecoveryFilesPath", true, @"%pth\Recovery\GameCube_Other");
 
-                    RedumpMatchRenameToMask = get(s, setting = "RedumpMatchRenameToMask", true, @"%pth\Restored\GameCube\%nmm.%ext");
-                    CustomMatchRenameToMask = get(s, setting = "CustomMatchRenameToMask", true, @"%pth\Restored\GameCube_Custom\%nmm.%ext");
-                    MatchFailRenameToMask = get(s, setting = "MatchFailRenameToMask", true, @"%pth\Restored\GameCube_MatchFail\%nmg %id6 [b].%ext");
+                    RedumpMatchRenameToMask = get(s, setting = "RedumpMatchRenameToMask", true, @"%pth\Output\%nmo [SPLIT] %id6 %crc.%ext");
+                    CustomMatchRenameToMask = get(s, setting = "CustomMatchRenameToMask", true, @"%pth\Output\%nmo [SPLIT] %id6 %crc.%ext");
+                    MatchFailRenameToMask = get(s, setting = "MatchFailRenameToMask", true, @"%pth\Output\%nmo [SPLIT] %id6 %crc.%ext");
                 }
                 else
                 {
