@@ -264,11 +264,11 @@ namespace Nanook.NKit
                 {
                     s = get(config, "gamecube");
 
-                    DatPathRedumpMask = get(s, setting = "DatPathRedumpMask", true, @"%pth\Dats\GameCube_Redump\*.dat");
-                    DatPathCustomMask = get(s, setting = "DatPathCustomMask", true, @"%pth\Dats\GameCube_Custom\*.dat");
+                    DatPathRedumpMask = get(s, setting = "DatPathRedumpMask", true, @"%pth\Temp\*.dat");
+                    DatPathCustomMask = get(s, setting = "DatPathCustomMask", true, @"%pth\Temp\*.dat");
 
-                    RecoveryFilesPath = get(s, setting = "RecoveryFilesPath", true, @"%pth\Recovery\GameCube");
-                    OtherRecoveryFilesPath = get(s, setting = "OtherRecoveryFilesPath", true, @"%pth\Recovery\GameCube_Other");
+                    RecoveryFilesPath = get(s, setting = "RecoveryFilesPath", true, @"%pth\Temp");
+                    OtherRecoveryFilesPath = get(s, setting = "OtherRecoveryFilesPath", true, @"%pth\Temp");
 
                     RedumpMatchRenameToMask = get(s, setting = "RedumpMatchRenameToMask", true, @"%pth\Output\%nmo [SPLIT] %id6 %crc.%ext");
                     CustomMatchRenameToMask = get(s, setting = "CustomMatchRenameToMask", true, @"%pth\Output\%nmo [SPLIT] %id6 %crc.%ext");
